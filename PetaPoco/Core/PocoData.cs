@@ -199,7 +199,18 @@ namespace PetaPoco.Internal
 					else
 					{
 						// var poco=new T()
-						il.Emit(OpCodes.Newobj, type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new Type[0], null));
+                        if (ObjectActivator == null)
+                        {
+                            il.Emit(OpCodes.Newobj, type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new Type[0], null));
+                        }
+                        else
+                        {
+                            il.Emit(OpCodes.Call, fnGetObjectActivator);
+                            il.Emit(OpCodes.Ldtoken, type);
+                            il.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle"));
+                            il.Emit(OpCodes.Callvirt, fnTypeInvoke);
+                            il.Emit(OpCodes.Castclass, type);
+                        }
 
 						// Enumerate all fields generating a set assignment for the column
 						for (int i = firstColumn; i < firstColumn + countColumns; i++)
@@ -383,13 +394,16 @@ namespace PetaPoco.Internal
 		static MethodInfo fnGetValue = typeof(IDataRecord).GetMethod("GetValue", new Type[] { typeof(int) });
 		static MethodInfo fnIsDBNull = typeof(IDataRecord).GetMethod("IsDBNull");
 		static FieldInfo fldConverters = typeof(PocoData).GetField("_converters", BindingFlags.Static | BindingFlags.GetField | BindingFlags.NonPublic);
-		static MethodInfo fnListGetItem = typeof(List<Func<object, object>>).GetProperty("Item").GetGetMethod();
-		static MethodInfo fnInvoke = typeof(Func<object, object>).GetMethod("Invoke");
-		public Type type;
-		public string[] QueryColumns { get; private set; }
-		public TableInfo TableInfo { get; private set; }
-		public Dictionary<string, PocoColumn> Columns { get; private set; }
-		Cache<Tuple<string, string, int, int>, Delegate> PocoFactories = new Cache<Tuple<string, string, int, int>, Delegate>();
-	}
+        static MethodInfo fnGetObjectActivator = typeof(PocoData).GetMethod("get_ObjectActivator", BindingFlags.Static | BindingFlags.Public);
+        static MethodInfo fnListGetItem = typeof(List<Func<object, object>>).GetProperty("Item").GetGetMethod();
+        static MethodInfo fnInvoke = typeof(Func<object, object>).GetMethod("Invoke");
+        static MethodInfo fnTypeInvoke = typeof(Func<Type, object>).GetMethod("Invoke");
+        public Type type;
+        public string[] QueryColumns { get; private set; }
+        public TableInfo TableInfo { get; private set; }
+        public Dictionary<string, PocoColumn> Columns { get; private set; }
+        public static Func<Type, object> ObjectActivator { get; set; }
+        Cache<Tuple<string, string, int, int>, Delegate> PocoFactories = new Cache<Tuple<string, string, int, int>, Delegate>();
+    }
 
 }
