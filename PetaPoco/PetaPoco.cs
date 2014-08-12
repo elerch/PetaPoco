@@ -3230,6 +3230,8 @@ namespace PetaPoco
 					return Singleton<SQLiteDatabaseType>.Instance;
 				if (TypeName.StartsWith("System.Data.SqlClient.")) 
 					return Singleton<SqlServerDatabaseType>.Instance;
+				if (TypeName.StartsWith("Firebird"))
+					return Singleton<FirebirdDatabaseType>.Instance;
 
 				// Try again with provider name
 				if (ProviderName.IndexOf("MySql", StringComparison.InvariantCultureIgnoreCase) >= 0) 
@@ -3242,6 +3244,8 @@ namespace PetaPoco
 					return Singleton<OracleDatabaseType>.Instance;
 				if (ProviderName.IndexOf("SQLite", StringComparison.InvariantCultureIgnoreCase) >= 0) 
 					return Singleton<SQLiteDatabaseType>.Instance;
+				if (ProviderName.IndexOf("Firebird", StringComparison.InvariantCultureIgnoreCase) >= 0)
+					return Singleton<FirebirdDatabaseType>.Instance;
 
 				// Assume SQL Server
 				return Singleton<SqlServerDatabaseType>.Instance;
@@ -4071,6 +4075,24 @@ namespace PetaPoco
 
 	namespace DatabaseTypes
 	{
+		class FirebirdDatabaseType : DatabaseType
+		{
+			public override string GetParameterPrefix(string ConnectionString)
+			{
+				return "@";
+			}
+
+			public override string EscapeSqlIdentifier(string str)
+			{
+				return string.Format("\"{0}\"", str);
+			}
+
+			public override string GetExistsSql()
+			{
+				return "SELECT EXISTS (SELECT 1 FROM {0} WHERE {1})";
+			}
+		}
+
 		class MySqlDatabaseType : DatabaseType
 		{
 			public override string GetParameterPrefix(string ConnectionString)

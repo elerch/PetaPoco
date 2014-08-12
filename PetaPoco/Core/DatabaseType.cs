@@ -150,6 +150,8 @@ namespace PetaPoco.Internal
 				return Singleton<SQLiteDatabaseType>.Instance;
 			if (TypeName.StartsWith("System.Data.SqlClient.")) 
 				return Singleton<SqlServerDatabaseType>.Instance;
+            if (TypeName.StartsWith("Firebird"))
+                return Singleton<FirebirdDatabaseType>.Instance;
 			
 			// Try again with provider name
 			if (ProviderName.IndexOf("MySql", StringComparison.InvariantCultureIgnoreCase) >= 0) 
@@ -162,6 +164,8 @@ namespace PetaPoco.Internal
 				return Singleton<OracleDatabaseType>.Instance;
 			if (ProviderName.IndexOf("SQLite", StringComparison.InvariantCultureIgnoreCase) >= 0) 
 				return Singleton<SQLiteDatabaseType>.Instance;
+            if (ProviderName.IndexOf("Firebird", StringComparison.InvariantCultureIgnoreCase) >= 0)
+                return Singleton<FirebirdDatabaseType>.Instance;
 
 			// Assume SQL Server
 			return Singleton<SqlServerDatabaseType>.Instance;
