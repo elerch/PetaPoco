@@ -341,10 +341,19 @@ namespace PetaPoco.Internal
 				{
 					return delegate(object src) { return EnumMapper.EnumFromString(dstType, (string)src); };
 				}
-				else
-				{
-					return delegate(object src) { return Convert.ChangeType(src, dstType, null); };
-				}
+                if (srcType == typeof(DateTime))
+                {
+                    if (dstType == typeof(DateTimeOffset))
+                        return pc.ForceToUtc
+                            ? (Func<object, object>)delegate(object src) { return new DateTimeOffset(new DateTime(((DateTime)src).Ticks, DateTimeKind.Utc)); }
+                            : delegate(object src) { return new DateTimeOffset((DateTime)src); };
+                    var underlyingType = Nullable.GetUnderlyingType(dstType);
+                    if (underlyingType != null && underlyingType == typeof(DateTimeOffset))
+                        return pc.ForceToUtc
+                            ? (Func<object, object>)delegate(object src) { var dt = (DateTime)src; return dt != default(DateTime) ? (DateTimeOffset?)new DateTimeOffset(new DateTime(dt.Ticks, DateTimeKind.Utc)) : null; }
+                            : delegate(object src) { var dt = (DateTime)src; return dt != default(DateTime) ? (DateTimeOffset?)new DateTimeOffset(dt) : null; };
+                }
+                return delegate(object src) { return Convert.ChangeType(src, dstType, null); };
 			}
 
 			return null;
