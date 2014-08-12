@@ -1605,7 +1605,7 @@ namespace PetaPoco
 		{
 			if (IsNew(primaryKeyName, poco))
 			{
-				Insert(tableName, primaryKeyName, true, poco);
+				Insert(tableName, primaryKeyName, PocoData.ForType(poco.GetType()).TableInfo.AutoIncrement, poco);
 			}
 			else
 			{
