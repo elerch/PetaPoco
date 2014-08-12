@@ -3751,6 +3751,12 @@ namespace PetaPoco
 				}
 				else if (!dstType.IsAssignableFrom(srcType))
 				{
+					if ((dstType == typeof(Guid) || dstType == typeof(Guid?)) && srcType == typeof(string))
+					{
+						return dstType == typeof(Guid?)
+							? (Func<object, object>)delegate(object src) { return string.IsNullOrWhiteSpace((string)src) ? (Guid?)null : Guid.Parse((string)src); }
+							: delegate(object src) { return Guid.Parse((string)src); };
+					}
 					if (dstType.IsEnum && srcType == typeof(string))
 					{
 						return delegate(object src) { return EnumMapper.EnumFromString(dstType, (string)src); };
