@@ -43,6 +43,15 @@ namespace PetaPoco
 			set;
 		}
 
+        /// <summary>
+        /// True if Enums should be forced to strings when writing to the database.
+        /// </summary>
+        public bool ForceEnumsToStrings
+        {
+            get;
+            set;
+        }
+
 		/// <summary>
 		/// Creates and populates a ColumnInfo from the attributes of a POCO property.
 		/// </summary>

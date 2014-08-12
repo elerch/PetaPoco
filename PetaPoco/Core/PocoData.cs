@@ -75,6 +75,7 @@ namespace PetaPoco.Internal
 				pc.ColumnName = ci.ColumnName;
 				pc.ResultColumn = ci.ResultColumn;
 				pc.ForceToUtc = ci.ForceToUtc;
+                pc.ForceEnumsToStrings = ci.ForceEnumsToStrings;
 
 				// Store it
 				Columns.Add(pc.ColumnName, pc);

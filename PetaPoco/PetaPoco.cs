@@ -2434,6 +2434,15 @@ namespace PetaPoco
 		}
 
 		/// <summary>
+		/// True if Enums should be forced to strings when writing to the database.
+		/// </summary>
+		public bool ForceEnumsToStrings
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
 		/// Creates and populates a ColumnInfo from the attributes of a POCO property.
 		/// </summary>
 		/// <param name="pi">The property whose column info is required</param>
@@ -3412,8 +3421,14 @@ namespace PetaPoco
 			public PropertyInfo PropertyInfo;
 			public bool ResultColumn;
 			public bool ForceToUtc;
+			public bool ForceEnumsToStrings;
 			public virtual void SetValue(object target, object val) { PropertyInfo.SetValue(target, val, null); }
-			public virtual object GetValue(object target) { return PropertyInfo.GetValue(target, null); }
+			public virtual object GetValue(object target)
+			{
+				if (ForceEnumsToStrings && PropertyInfo.PropertyType.IsEnum)
+					return PropertyInfo.GetValue(target, null).ToString();
+				return PropertyInfo.GetValue(target, null);
+			}
 			public virtual object ChangeType(object val) { return Convert.ChangeType(val, PropertyInfo.PropertyType); }
 		}
 
@@ -3480,6 +3495,7 @@ namespace PetaPoco
 					pc.ColumnName = ci.ColumnName;
 					pc.ResultColumn = ci.ResultColumn;
 					pc.ForceToUtc = ci.ForceToUtc;
+					pc.ForceEnumsToStrings = ci.ForceEnumsToStrings;
 
 					// Store it
 					Columns.Add(pc.ColumnName, pc);
